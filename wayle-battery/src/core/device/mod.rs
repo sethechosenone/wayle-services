@@ -221,7 +221,10 @@ impl Device {
         connection: &Connection,
         device_path: &OwnedObjectPath,
     ) -> Result<DeviceProps, Error> {
-        let proxy = DeviceProxy::new(connection, device_path).await?;
+        let proxy = DeviceProxy::builder(connection)
+			.cache_properties(zbus::proxy::CacheProperties::No)
+			.path(device_path)?
+			.build().await?;
 
         let (
             native_path,

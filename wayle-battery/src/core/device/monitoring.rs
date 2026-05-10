@@ -16,7 +16,11 @@ impl ModelMonitoring for Device {
     type Error = Error;
 
     async fn start_monitoring(self: Arc<Self>) -> Result<(), Self::Error> {
-        let proxy = DeviceProxy::new(&self.zbus_connection, self.device_path.clone()).await?;
+        let proxy = DeviceProxy::builder(&self.zbus_connection)
+			.cache_properties(zbus::proxy::CacheProperties::No)
+			.path(self.device_path.clone())?
+			.build()
+			.await?;
 
         let weak_self = Arc::downgrade(&self);
         let Some(ref cancellation_token) = self.cancellation_token else {
